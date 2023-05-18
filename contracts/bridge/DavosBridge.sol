@@ -47,7 +47,7 @@ contract DavosBridge is IDavosBridge, OwnableUpgradeable, PausableUpgradeable, R
     }
 
     // --- User ---
-    function depositToken(address fromToken, uint256 toChain, address toAddress, uint256 amount) public override nonReentrant whenNotPaused {
+    function depositToken(address fromToken, uint256 toChain, address toAddress, uint256 amount) external override nonReentrant whenNotPaused {
 
         if (warpDestination(fromToken, toChain) != address(0)) {
             _depositWarped(fromToken, toChain, toAddress, amount);
@@ -64,18 +64,12 @@ contract DavosBridge is IDavosBridge, OwnableUpgradeable, PausableUpgradeable, R
     function _depositWarped(address fromToken, uint256 toChain, address toAddress, uint256 totalAmount) internal {
 
         address fromAddress = address(msg.sender);
-        {            
-            require(_bridgeAddressByChainId[toChain] != address(0), "DavosBridge/non-existing-bridge");
-            uint256 balanceBefore = IERC20Upgradeable(fromToken).balanceOf(address(this));
-            IERC20Upgradeable(fromToken).transferFrom(fromAddress, address(this), totalAmount);
-            uint256 balanceAfter = IERC20Upgradeable(fromToken).balanceOf(address(this));
-            require(balanceAfter >= balanceBefore + totalAmount, "DavosBridge/incorrect-transfer-amount");
-        }
+        require(_bridgeAddressByChainId[toChain] != address(0), "DavosBridge/non-existing-bridge");
 
         totalAmount = _amountErc20Token(fromToken, totalAmount);
         address toToken = warpDestination(fromToken, toChain);
 
-        IERC20Mintable(fromToken).burn(address(this), totalAmount); 
+        IERC20Mintable(fromToken).burn(fromAddress, totalAmount); 
         
         /* fromToken and toToken are independent, originChain and originAddress are invalid */
         Metadata memory metaData = Metadata(

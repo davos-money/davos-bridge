@@ -83,17 +83,17 @@ describe("===Bridge===", function () {
             expect((await warptoken1.balanceOf(eoa1.address)).toString()).to.be.equal(ethers.utils.parseEther('90').toString());
             expect((await warptoken1.totalSupply()).toString()).to.be.equal(ethers.utils.parseEther('90').toString());
 
-            assert.equal(receipt.events[2].event, "DepositWarped");
-            assert.equal(receipt.events[2].args["fromAddress"].toString(), eoa1.address, "Wrong toChain");
-            assert.equal(receipt.events[2].args["toAddress"].toString(), eoa2.address, "Wrong toAddress");
-            assert.equal(receipt.events[2].args["fromToken"].toString(), warptoken1.address, "Wrong fromToken");
-            assert.equal(receipt.events[2].args["toToken"].toString(), warptoken2.address, "Wrong toToken");
-            assert.equal(receipt.events[2].args["totalAmount"].toString(), amount, "Wrong totalAmount");
-            // assert.equal(receipt.events[2].args["nonce"].toString(), 1, "Wrong _contractNonce");
-            assert.equal(receipt.events[2].args["metadata"].symbol.toString(), ethers.utils.formatBytes32String("WTKN"), "Wrong symbol");
-            assert.equal(receipt.events[2].args["metadata"].name.toString(), ethers.utils.formatBytes32String("WarpToken"), "Wrong name");
-            assert.equal(receipt.events[2].args["metadata"].originChain, 0, "Wrong originChain");
-            assert.equal(receipt.events[2].args["metadata"].originAddress, NULL_ADDRESS, "Wrong originToken");
+            assert.equal(receipt.events[1].event, "DepositWarped");
+            assert.equal(receipt.events[1].args["fromAddress"].toString(), eoa1.address, "Wrong toChain");
+            assert.equal(receipt.events[1].args["toAddress"].toString(), eoa2.address, "Wrong toAddress");
+            assert.equal(receipt.events[1].args["fromToken"].toString(), warptoken1.address, "Wrong fromToken");
+            assert.equal(receipt.events[1].args["toToken"].toString(), warptoken2.address, "Wrong toToken");
+            assert.equal(receipt.events[1].args["totalAmount"].toString(), amount, "Wrong totalAmount");
+            // assert.equal(receipt.events[1].args["nonce"].toString(), 1, "Wrong _contractNonce");
+            assert.equal(receipt.events[1].args["metadata"].symbol.toString(), ethers.utils.formatBytes32String("WTKN"), "Wrong symbol");
+            assert.equal(receipt.events[1].args["metadata"].name.toString(), ethers.utils.formatBytes32String("WarpToken"), "Wrong name");
+            assert.equal(receipt.events[1].args["metadata"].originChain, 0, "Wrong originChain");
+            assert.equal(receipt.events[1].args["metadata"].originAddress, NULL_ADDRESS, "Wrong originToken");
         });
         it("Withdraw WarpToken2", async function () {
 
@@ -139,17 +139,17 @@ describe("===Bridge===", function () {
             expect((await warptoken2.balanceOf(eoa2.address)).toString()).to.be.equal(ethers.utils.parseEther('0').toString());
             expect((await warptoken2.totalSupply()).toString()).to.be.equal(ethers.utils.parseEther('0').toString());
 
-            assert.equal(receipt.events[2].event, "DepositWarped");
-            assert.equal(receipt.events[2].args["fromAddress"].toString(), eoa2.address, "Wrong toChain");
-            assert.equal(receipt.events[2].args["toAddress"].toString(), eoa1.address, "Wrong toAddress");
-            assert.equal(receipt.events[2].args["fromToken"].toString(), warptoken2.address, "Wrong fromToken");
-            assert.equal(receipt.events[2].args["toToken"].toString(), warptoken1.address, "Wrong toToken");
-            assert.equal(receipt.events[2].args["totalAmount"].toString(), amount, "Wrong totalAmount");
-            // assert.equal(receipt.events[2].args["nonce"].toString(), 1, "Wrong _contractNonce");
-            assert.equal(receipt.events[2].args["metadata"].symbol.toString(), ethers.utils.formatBytes32String("WTKN"), "Wrong symbol");
-            assert.equal(receipt.events[2].args["metadata"].name.toString(), ethers.utils.formatBytes32String("WarpToken"), "Wrong name");
-            assert.equal(receipt.events[2].args["metadata"].originChain, 0, "Wrong originChain");
-            assert.equal(receipt.events[2].args["metadata"].originAddress, NULL_ADDRESS, "Wrong originToken");
+            assert.equal(receipt.events[1].event, "DepositWarped");
+            assert.equal(receipt.events[1].args["fromAddress"].toString(), eoa2.address, "Wrong toChain");
+            assert.equal(receipt.events[1].args["toAddress"].toString(), eoa1.address, "Wrong toAddress");
+            assert.equal(receipt.events[1].args["fromToken"].toString(), warptoken2.address, "Wrong fromToken");
+            assert.equal(receipt.events[1].args["toToken"].toString(), warptoken1.address, "Wrong toToken");
+            assert.equal(receipt.events[1].args["totalAmount"].toString(), amount, "Wrong totalAmount");
+            // assert.equal(receipt.events[1].args["nonce"].toString(), 1, "Wrong _contractNonce");
+            assert.equal(receipt.events[1].args["metadata"].symbol.toString(), ethers.utils.formatBytes32String("WTKN"), "Wrong symbol");
+            assert.equal(receipt.events[1].args["metadata"].name.toString(), ethers.utils.formatBytes32String("WarpToken"), "Wrong name");
+            assert.equal(receipt.events[1].args["metadata"].originChain, 0, "Wrong originChain");
+            assert.equal(receipt.events[1].args["metadata"].originAddress, NULL_ADDRESS, "Wrong originToken");
         });
         it("Withdraw WarpToken1", async function () {
 
@@ -175,6 +175,46 @@ describe("===Bridge===", function () {
             assert.equal(receipt.events[1].args["fromToken"].toString(), warptoken2.address, "Wrong fromToken");
             assert.equal(receipt.events[1].args["toToken"].toString(), warptoken1.address, "Wrong toToken");
             assert.equal(receipt.events[1].args["totalAmount"].toString(), amount, "Wrong totalAmount");
+        });
+        it("reverts: Non-consensus signing", async () => {
+
+            this.timeout(1500000000);
+
+            // --- Deposit ---
+            // Bridge can only warp tokens with allowance from 'eoa1'
+            await warptoken1.connect(eoa1).approve(bridge1.address, ethers.utils.parseEther('10'));
+
+            // Deposit WarpToken1
+            expect((await warptoken1.balanceOf(eoa1.address)).toString()).to.be.equal(ethers.utils.parseEther('100').toString());
+            expect((await warptoken1.totalSupply()).toString()).to.be.equal(ethers.utils.parseEther('100').toString());
+
+            let tx1 = await bridge1.connect(eoa1).depositToken(warptoken1.address, CHAIN1, eoa2.address, amount);
+            receipt = await tx1.wait();
+
+            expect((await warptoken1.balanceOf(eoa1.address)).toString()).to.be.equal(ethers.utils.parseEther('90').toString());
+            expect((await warptoken1.totalSupply()).toString()).to.be.equal(ethers.utils.parseEther('90').toString());
+
+            assert.equal(receipt.events[1].event, "DepositWarped");
+            assert.equal(receipt.events[1].args["fromAddress"].toString(), eoa1.address, "Wrong toChain");
+            assert.equal(receipt.events[1].args["toAddress"].toString(), eoa2.address, "Wrong toAddress");
+            assert.equal(receipt.events[1].args["fromToken"].toString(), warptoken1.address, "Wrong fromToken");
+            assert.equal(receipt.events[1].args["toToken"].toString(), warptoken2.address, "Wrong toToken");
+            assert.equal(receipt.events[1].args["totalAmount"].toString(), amount, "Wrong totalAmount");
+            // assert.equal(receipt.events[1].args["nonce"].toString(), 1, "Wrong _contractNonce");
+            assert.equal(receipt.events[1].args["metadata"].symbol.toString(), ethers.utils.formatBytes32String("WTKN"), "Wrong symbol");
+            assert.equal(receipt.events[1].args["metadata"].name.toString(), ethers.utils.formatBytes32String("WarpToken"), "Wrong name");
+            assert.equal(receipt.events[1].args["metadata"].originChain, 0, "Wrong originChain");
+            assert.equal(receipt.events[1].args["metadata"].originAddress, NULL_ADDRESS, "Wrong originToken");
+
+            // --- Withdraw ---
+            // Process proofs but signer is non-consensus
+            [encodedProof, rawReceipt, proofSignature, proofHash] = generateWithdrawalData(treasury, receipt);
+
+            // Withdraw WarpToken2
+            expect((await warptoken2.balanceOf(eoa2.address)).toString()).to.be.equal(ethers.utils.parseEther('0').toString());
+            expect((await warptoken2.totalSupply()).toString()).to.be.equal(ethers.utils.parseEther('0').toString());
+
+            await expect(bridge2.connect(eoa2).withdraw(encodedProof, rawReceipt, proofSignature)).to.be.revertedWith("DavosBridge/bad-signature");
         });
     });
 });
