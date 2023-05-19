@@ -63,14 +63,14 @@ contract DavosBridge is IDavosBridge, OwnableUpgradeable, PausableUpgradeable, R
      */
     function _depositWarped(address fromToken, uint256 toChain, address toAddress, uint256 totalAmount) internal {
 
-        address fromAddress = address(msg.sender);
         require(_bridgeAddressByChainId[toChain] != address(0), "DavosBridge/non-existing-bridge");
-
-        totalAmount = _amountErc20Token(fromToken, totalAmount);
-        address toToken = warpDestination(fromToken, toChain);
-
-        IERC20Mintable(fromToken).burn(fromAddress, totalAmount); 
+        address fromAddress = address(msg.sender);
         
+        uint256 balanceBefore = IERC20Upgradeable(fromToken).balanceOf(fromAddress);
+        IERC20Mintable(fromToken).burn(fromAddress, totalAmount); 
+        uint256 balanceAfter = IERC20Upgradeable(fromToken).balanceOf(fromAddress);
+        require(balanceAfter + totalAmount == balanceBefore, "DavosBridge/incorrect-transfer-amount");
+
         /* fromToken and toToken are independent, originChain and originAddress are invalid */
         Metadata memory metaData = Metadata(
             Utils.stringToBytes32(IERC20Extra(fromToken).symbol()),
@@ -81,7 +81,7 @@ contract DavosBridge is IDavosBridge, OwnableUpgradeable, PausableUpgradeable, R
 
        _globalNonce++;
 
-        emit DepositWarped(toChain, fromAddress, toAddress, fromToken, toToken, totalAmount, _globalNonce, metaData);
+        emit DepositWarped(toChain, fromAddress, toAddress, fromToken, warpDestination(fromToken, toChain), _amountErc20Token(fromToken, totalAmount), _globalNonce, metaData);
     }
     function _amountErc20Token(address fromToken, uint256 totalAmount) internal returns (uint256) {
 
