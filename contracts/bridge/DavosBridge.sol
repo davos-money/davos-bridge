@@ -119,19 +119,19 @@ contract DavosBridge is IDavosBridge, OwnableUpgradeable, PausableUpgradeable, R
         require(ECDSAUpgradeable.recover(proofHash, proofSignature) == _consensusAddress, "DavosBridge/bad-signature");
 
         // withdraw funds to recipient
-        _withdraw(state, pegInType, proofHash);
+        _withdraw(state, pegInType, proof, proofHash);
     }
-    function _withdraw(EthereumVerifier.State memory state, EthereumVerifier.PegInType pegInType, bytes32 payload) internal {
+    function _withdraw(EthereumVerifier.State memory state, EthereumVerifier.PegInType pegInType, ProofParser.Proof memory proof, bytes32 payload) internal {
 
         require(!_usedProofs[payload], "DavosBridge/used-proof");
         _usedProofs[payload] = true;
         if (pegInType == EthereumVerifier.PegInType.Warp) {
-            _withdrawWarped(state);
+            _withdrawWarped(state, proof);
         } else revert("DavosBridge/invalid-type");
     }
-    function _withdrawWarped(EthereumVerifier.State memory state) internal {
+    function _withdrawWarped(EthereumVerifier.State memory state, ProofParser.Proof memory proof) internal {
 
-        require(warpDestination(state.toToken, state.chainId) == state.fromToken, "DavosBridge/bridge-from-unknown-destination");
+        require(warpDestination(state.toToken, proof.chainId) == state.fromToken, "DavosBridge/bridge-from-unknown-destination");
         IERC20Mintable(state.toToken).mint(state.toAddress, state.totalAmount);
 
         emit WithdrawMinted(state.receiptHash, state.fromAddress, state.toAddress, state.fromToken, state.toToken, state.totalAmount);
