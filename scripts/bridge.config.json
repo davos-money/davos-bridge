@@ -1,5 +1,6 @@
 {
-    "_consensus" : "", 
-    "_symbol" : "",
-    "_name" : ""
+    "_symbolPolygon" : "MATIC",
+    "_namePolygon" : "Matic Token",
+    "_symbolEthereum" : "ETH",
+    "_nameEthereum" : "Ether"
 }

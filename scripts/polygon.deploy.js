@@ -10,7 +10,7 @@ async function main() {
     let _nonce = initialNonce
 
     // External
-    let {_consensus, _symbol, _name} = require(`./bridge.config.json`);
+    let {_symbolPolygon, _namePolygon} = require(`./bridge.config.json`);
     
     // Fetching
     this.DavosBridge = await hre.ethers.getContractFactory("DavosBridge");
@@ -18,7 +18,7 @@ async function main() {
     // Deployment
     console.log("Bridge...");
 
-    let davosBridge = await upgrades.deployProxy(this.DavosBridge, [_consensus, _symbol, _name], {initializer: "initialize", nonce: _nonce}); _nonce += 1;
+    let davosBridge = await upgrades.deployProxy(this.DavosBridge, [deployer.address, _symbolPolygon, _namePolygon], {initializer: "initialize", nonce: _nonce}); _nonce += 1;
     await davosBridge.deployed();
     let davosBridgeImp = await upgrades.erc1967.getImplementationAddress(davosBridge.address);
     console.log("DavosBridge     : " + davosBridge.address);
