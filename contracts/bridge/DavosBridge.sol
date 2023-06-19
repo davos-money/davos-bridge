@@ -7,6 +7,7 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
 
 import "../interfaces/IDavosBridge.sol";
@@ -132,7 +133,12 @@ contract DavosBridge is IDavosBridge, OwnableUpgradeable, PausableUpgradeable, R
     function _withdrawWarped(EthereumVerifier.State memory state, ProofParser.Proof memory proof) internal {
 
         require(warpDestination(state.toToken, proof.chainId) == state.fromToken, "DavosBridge/bridge-from-unknown-destination");
-        IERC20Mintable(state.toToken).mint(state.toAddress, state.totalAmount);
+
+        uint8 decimals = IERC20MetadataUpgradeable(state.toToken).decimals();
+        require(decimals <= 18, "DavosBridge/decimals-overflow");
+
+        uint256 scaledAmount = state.totalAmount / (10**(18 - decimals));
+        IERC20Mintable(state.toToken).mint(state.toAddress, scaledAmount);
 
         emit WithdrawMinted(state.receiptHash, state.fromAddress, state.toAddress, state.fromToken, state.toToken, state.totalAmount);
     }
