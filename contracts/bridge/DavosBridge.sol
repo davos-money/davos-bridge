@@ -105,6 +105,7 @@ contract DavosBridge is IDavosBridge, OwnableUpgradeable, PausableUpgradeable, R
         require(state.chainId == block.chainid, "DavosBridge/receipt-points-to-another-chain");
 
         ProofParser.Proof memory proof = ProofParser.parseProof(proofOffset);
+        require(state.contractAddress != address(0), "DavosBridge/invalid-contractAddress");
         require(_bridgeAddressByChainId[proof.chainId] == state.contractAddress, "DavosBridge/event-from-unknown-bridge");
 
         state.receiptHash = keccak256(rawReceipt);
@@ -132,6 +133,7 @@ contract DavosBridge is IDavosBridge, OwnableUpgradeable, PausableUpgradeable, R
     }
     function _withdrawWarped(EthereumVerifier.State memory state, ProofParser.Proof memory proof) internal {
 
+        require(state.fromToken != address(0), "DavosBridge/invalid-fromToken");
         require(warpDestination(state.toToken, proof.chainId) == state.fromToken, "DavosBridge/bridge-from-unknown-destination");
 
         uint8 decimals = IERC20MetadataUpgradeable(state.toToken).decimals();
@@ -196,7 +198,4 @@ contract DavosBridge is IDavosBridge, OwnableUpgradeable, PausableUpgradeable, R
 
         return _warpDestinations[keccak256(abi.encodePacked(fromToken, block.chainid, _bridgeAddressByChainId[toChain]))];
     }
-
-    // --- Primitives ---
-    receive() external payable {}
 }

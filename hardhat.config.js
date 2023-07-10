@@ -51,11 +51,60 @@ module.exports = {
             chainId: 80001,
             accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
             gasPrice: parseInt(process.env.GAS_PRICE) || 'auto'
+        },
+        arbitrum: {
+            url: process.env.ARBITRUM_URL,
+            chainId: 42161,
+            accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
+            gasPrice: parseInt(process.env.GAS_PRICE) || 'auto'
+        },
+        arbitrumTestnet: {
+            url: process.env.ARBITRUMGOERLI_URL,
+            chainId: 421613,
+            accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
+            gasPrice: parseInt(process.env.GAS_PRICE) || 'auto'
+        },
+        optimism: {
+            url: process.env.OPTIMISM_URL,
+            chainId: 10,
+            accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
+            gasPrice: parseInt(process.env.GAS_PRICE) || 'auto'
+        },
+        optimismTestnet: {
+            url: process.env.OPTIMISMGOERLI_URL,
+            chainId: 420,
+            accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
+            gasPrice: parseInt(process.env.GAS_PRICE) || 'auto'
+        },
+        zkevm: {
+            url: process.env.ZKEVM_URL,
+            chainId: 1101,
+            accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
+            gasPrice: parseInt(process.env.GAS_PRICE) || 'auto'
+        },
+        zkevmTestnet: {
+            url: process.env.ZKEVMTESTNET_URL,
+            chainId: 1442,
+            accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
+            gasPrice: parseInt(process.env.GAS_PRICE) || 'auto'
         }
     },
 
     etherscan: {
-        apiKey: process.env.SCAN_API_KEY
+        apiKey: // process.env.SCAN_API_KEY
+        {
+            zkevmTestnet: process.env.SCAN_API_KEY
+        },
+        customChains: [
+            {
+              network: "zkevmTestnet",
+              chainId: 1442,
+              urls: {
+                apiURL: "https://api-testnet-zkevm.polygonscan.com/api",
+                browserURL: "https://testnet-zkevm.polygonscan.com/"
+              }
+            }
+          ]
     },
 
     mocha: {
