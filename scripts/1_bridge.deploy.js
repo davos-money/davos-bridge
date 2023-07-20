@@ -53,7 +53,7 @@ async function main() {
     // Deployment
     console.log("Bridge...");
 
-    let davosBridge = await upgrades.deployProxy(this.DavosBridge, [_consensus, _symbol, _name], {initializer: "initialize", nonce: _nonce}); _nonce += 1;
+    let davosBridge = await upgrades.deployProxy(this.DavosBridge, [_consensus, _symbol, _name], {initializer: "initialize"});
     await davosBridge.deployed();
     let davosBridgeImp = await upgrades.erc1967.getImplementationAddress(davosBridge.address);
     console.log("DavosBridge     : " + davosBridge.address);
@@ -70,7 +70,7 @@ async function main() {
     console.log(`./scripts/addresses_${network.name}_1.json`);
 
     console.log("===Transfering ownership");
-    await davosBridge.transferOwnership(_multisig, { nonce: _nonce}); _nonce += 1;
+    await davosBridge.transferOwnership(_multisig);
 
     console.log("=== Try proxyAdmin transfer...");
     const proxyAdminAddress = parseAddress(await ethers.provider.getStorageAt(davosBridge.address, admin_slot));
@@ -85,7 +85,7 @@ async function main() {
     if (owner != ethers.constants.AddressZero && owner != _multisig) {
         PROXY_ADMIN_ABI = ["function transferOwnership(address newOwner) public"];
         let proxyAdmin = await ethers.getContractAt(PROXY_ADMIN_ABI, proxyAdminAddress);
-        await proxyAdmin.transferOwnership(_multisig, { nonce: _nonce}); _nonce += 1;
+        await proxyAdmin.transferOwnership(_multisig);
         console.log("proxyAdmin transferred");
     } else {
         console.log("Already owner of proxyAdmin")
