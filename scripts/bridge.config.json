@@ -1,9 +1,16 @@
 {
     "_consensus" : "0x4d5F4cAEe7f51670A4c3a9f6C93D4B42418E3d90", 
+    
     "_symbolArb" : "ARB_ETH",
     "_nameArb" : "Arbitrum Ether",
+    "_multisigArb"  : "0x39355FFAfC47E54E7d7e786b1Df0fa0e222FBd06",
+
     "_symbolOpt" : "OPT_ETH",
     "_nameOpt" : "Optimistic Ether",
+    "_multisigOpt"  : "0xd41773c62c84f828D5Db0F9B8B0274cB5aB352Bd",
+
     "_symbolBsc" : "BNB",
-    "_nameBsc" : "BNB"
+    "_nameBsc" : "BNB",
+    "_multisigBsc"  : "0x0567E328D0E23be8B8cB8c3004bEAc39fbD11082"
+
 }
