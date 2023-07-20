@@ -1,5 +1,9 @@
 {
-    "_consensus" : "", 
-    "_symbol" : "",
-    "_name" : ""
+    "_consensus" : "0x4d5F4cAEe7f51670A4c3a9f6C93D4B42418E3d90", 
+    "_symbolArb" : "ARB_ETH",
+    "_nameArb" : "Arbitrum Ether",
+    "_symbolOpt" : "OPT_ETH",
+    "_nameOpt" : "Optimistic Ether",
+    "_symbolBsc" : "BNB",
+    "_nameBsc" : "BNB"
 }

@@ -10,8 +10,29 @@ async function main() {
     let _nonce = initialNonce
 
     // External
-    let {_consensus, _symbol, _name} = require(`./bridge.config.json`);
-    
+    let _symbol, _name;
+    let { _consensus } = require(`./bridge.config.json`);
+
+    if (hre.network.name == "arbitrum" || hre.network.name == "arbitrumTestnet") {
+        console.log("ARBITRUM deployment")
+        let {_symbolArb} = require(`./bridge.config.json`); _symbol = _symbolArb;
+        let {_nameArb} = require(`./bridge.config.json`); _name =_nameArb;
+    } else if (hre.network.name == "optimism" || hre.network.name == "optimismTestnet") {
+        console.log("OPTIMISM deployment")
+        let {_symbolOpt} = require(`./bridge.config.json`); _symbol = _symbolOpt;
+        let {_nameOpt} = require(`./bridge.config.json`); _name = _nameOpt;
+    } else if (hre.network.name == "bsc" || hre.network.name == "bscTestnet") {
+        console.log("BSC deployment")
+        let {_symbolBsc} = require(`./bridge.config.json`); _symbol = _symbolBsc;
+        let {_nameBsc} = require(`./bridge.config.json`); _name = _nameBsc;
+    } else {
+        throw "STOPPED";
+    }
+
+    console.log(_symbol);
+    console.log(_name);
+    console.log(_consensus);
+
     // Fetching
     this.DavosBridge = await hre.ethers.getContractFactory("DavosBridge");
 

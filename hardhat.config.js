@@ -87,13 +87,25 @@ module.exports = {
             chainId: 1442,
             accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
             gasPrice: parseInt(process.env.GAS_PRICE) || 'auto'
+        },
+        bsc: {
+            url: process.env.BSC_URL,
+            chainId: 56,
+            accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
+            gasPrice: parseInt(process.env.GAS_PRICE) || 'auto'
+        },
+        bscTestnet: {
+            url: process.env.BSCTESTNET_URL,
+            chainId: 97,
+            accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
+            gasPrice: parseInt(process.env.GAS_PRICE) || 'auto'
         }
     },
 
     etherscan: {
         apiKey: // process.env.SCAN_API_KEY
         {
-            zkevmTestnet: process.env.SCAN_API_KEY
+            bscTestnet: process.env.SCAN_API_KEY
         },
         customChains: [
             {
