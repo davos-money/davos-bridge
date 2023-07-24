@@ -7,9 +7,6 @@ async function main() {
     // Signer
     [deployer] = await ethers.getSigners();
 
-    // External
-    let { _consensus } = require(`./bridge.config.json`);
-    
     // Fetching
     this.DavosBridge = await hre.ethers.getContractFactory("DavosBridge");
 

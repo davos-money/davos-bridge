@@ -70,7 +70,7 @@ module.exports = {
             accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
             gasPrice: parseInt(process.env.GAS_PRICE_OPT) || 'auto'
         },
-        optimisticGoerli: {
+        optimismTestnet: {
             url: process.env.OPTIMISMGOERLI_URL,
             chainId: 420,
             accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
