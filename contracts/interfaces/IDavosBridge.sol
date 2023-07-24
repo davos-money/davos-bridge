@@ -17,6 +17,7 @@ interface IDavosBridge {
     event BridgeAdded(address bridge, uint256 toChain);
     event BridgeRemoved(address bridge, uint256 toChain);
     event WarpDestinationAdded(address indexed fromToken, uint256 indexed toChain, address indexed toToken);
+    event WarpDestinationRemoved(address indexed fromToken, uint256 indexed toChain, address indexed toToken);
     event ConsensusChanged(address consensusAddress);
     event DepositWarped(uint256 chainId, address indexed fromAddress, address indexed toAddress, address fromToken, address toToken, uint256 totalAmount, uint256 nonce, Metadata metadata);
     event WithdrawMinted(bytes32 receiptHash, address indexed fromAddress, address indexed toAddress, address fromToken, address toToken, uint256 totalAmount);

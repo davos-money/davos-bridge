@@ -25,7 +25,7 @@ contract DavosBridge is IDavosBridge, OwnableUpgradeable, PausableUpgradeable, R
 
     mapping(bytes32 => bool) private _usedProofs;
     mapping(uint256 => address) private _bridgeAddressByChainId;
-    mapping(bytes32 => address) private _warpDestinations; // KECCAK256(fromToken,fromChain,_bridgeAddressByChainId(toChain)) => destinationToken
+    mapping(bytes32 => address) private _warpDestinations; // KECCAK256(fromToken,fromChain,_bridgeAddressByChainId(toChain), toChain) => destinationToken
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     // --- Constructor ---
@@ -105,6 +105,7 @@ contract DavosBridge is IDavosBridge, OwnableUpgradeable, PausableUpgradeable, R
         require(state.chainId == block.chainid, "DavosBridge/receipt-points-to-another-chain");
 
         ProofParser.Proof memory proof = ProofParser.parseProof(proofOffset);
+        require(state.contractAddress != address(0), "DavosBridge/invalid-contractAddress");
         require(_bridgeAddressByChainId[proof.chainId] == state.contractAddress, "DavosBridge/event-from-unknown-bridge");
 
         state.receiptHash = keccak256(rawReceipt);
@@ -132,6 +133,7 @@ contract DavosBridge is IDavosBridge, OwnableUpgradeable, PausableUpgradeable, R
     }
     function _withdrawWarped(EthereumVerifier.State memory state, ProofParser.Proof memory proof) internal {
 
+        require(state.fromToken != address(0), "DavosBridge/invalid-fromToken");
         require(warpDestination(state.toToken, proof.chainId) == state.fromToken, "DavosBridge/bridge-from-unknown-destination");
 
         uint8 decimals = IERC20MetadataUpgradeable(state.toToken).decimals();
@@ -172,11 +174,20 @@ contract DavosBridge is IDavosBridge, OwnableUpgradeable, PausableUpgradeable, R
     function addWarpDestination(address fromToken, uint256 toChain, address toToken) external onlyOwner {
 
         require(_bridgeAddressByChainId[toChain] != address(0), "DavosBridge/bad-chain");
-        bytes32 direction = keccak256(abi.encodePacked(fromToken, block.chainid, _bridgeAddressByChainId[toChain]));
+        bytes32 direction = keccak256(abi.encodePacked(fromToken, block.chainid, _bridgeAddressByChainId[toChain], toChain));
         require(_warpDestinations[direction] == address(0), "DavosBridge/known-destination");
         _warpDestinations[direction] = toToken;
 
         emit WarpDestinationAdded(fromToken, toChain, toToken);
+    }
+    function removeWarpDestination(address fromToken, uint256 toChain, address toToken) external onlyOwner {
+
+        require(_bridgeAddressByChainId[toChain] != address(0), "DavosBridge/bad-chain");
+        bytes32 direction = keccak256(abi.encodePacked(fromToken, block.chainid, _bridgeAddressByChainId[toChain], toChain));
+        require(_warpDestinations[direction] != address(0), "DavosBridge/unknown-destination");
+        delete _warpDestinations[direction];
+
+        emit WarpDestinationRemoved(fromToken, toChain, toToken);
     }
     function changeConsensus(address consensus) public onlyOwner {
 
@@ -194,9 +205,6 @@ contract DavosBridge is IDavosBridge, OwnableUpgradeable, PausableUpgradeable, R
     // --- Views ---
     function warpDestination(address fromToken, uint256 toChain) public view returns(address) {
 
-        return _warpDestinations[keccak256(abi.encodePacked(fromToken, block.chainid, _bridgeAddressByChainId[toChain]))];
+        return _warpDestinations[keccak256(abi.encodePacked(fromToken, block.chainid, _bridgeAddressByChainId[toChain], toChain))];
     }
-
-    // --- Primitives ---
-    receive() external payable {}
 }
