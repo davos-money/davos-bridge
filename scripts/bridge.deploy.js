@@ -10,7 +10,29 @@ async function main() {
     let _nonce = initialNonce
 
     // External
-    let {_consensus, _symbol, _name} = require(`./bridge.config.json`);
+    let _consensus, _symbol, _name;
+
+    if (hre.network.name == "linea") {
+        chainid = 59144;
+        _consensus = "0x4d5F4cAEe7f51670A4c3a9f6C93D4B42418E3d90";
+        _symbol = "LIN";
+        _name = "Linea";
+    } else if (hre.network.name == "lineaTestnet") {
+        chainid = 59140;
+        _consensus = "0x14330cfC54aA5a5637Af47330d3e3701eBe50273";
+        _symbol = "LIN";
+        _name = "LineaTestnet";
+    } else if (hre.network.name == "avalanche") { 
+        chainid = 43114;
+        _consensus = "0x4d5F4cAEe7f51670A4c3a9f6C93D4B42418E3d90";
+        _symbol = "AVAX";
+        _name = "Avalanche";
+    } else if (hre.network.name == "avalancheTestnet") {
+        chainid = 43113;
+        _consensus = "0x14330cfC54aA5a5637Af47330d3e3701eBe50273";
+        _symbol = "AVAX";
+        _name = "AvalancheTestnet";
+    } else throw("ERR:> Network Unsupported !");
     
     // Fetching
     this.DavosBridge = await hre.ethers.getContractFactory("DavosBridge");
@@ -31,8 +53,8 @@ async function main() {
     }
 
     const json_addresses = JSON.stringify(addresses);
-    fs.writeFileSync(`./scripts/addresses_${network.name}_1.json`, json_addresses);
-    console.log(`./scripts/addresses_${network.name}_1.json`);
+    fs.writeFileSync(`./scripts/addresses_${network.name}.json`, json_addresses);
+    console.log(`./scripts/addresses_${network.name}.json`);
 }
 
 main()
