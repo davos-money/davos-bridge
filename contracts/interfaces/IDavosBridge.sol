@@ -14,6 +14,8 @@ interface IDavosBridge {
     }
 
     // --- Events ---
+    event TxCapChanged(address indexed token, uint256 indexed xAmount, uint256 indexed amount);
+    event DayCapChanged(address indexed token,uint256 indexed xAmount, uint256 indexed amount);
     event BridgeAdded(address bridge, uint256 toChain);
     event BridgeRemoved(address bridge, uint256 toChain);
     event WarpDestinationAdded(address indexed fromToken, uint256 indexed toChain, address indexed toToken);

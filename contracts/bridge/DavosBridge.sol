@@ -25,7 +25,19 @@ contract DavosBridge is IDavosBridge, OwnableUpgradeable, PausableUpgradeable, R
 
     mapping(bytes32 => bool) private _usedProofs;
     mapping(uint256 => address) private _bridgeAddressByChainId;
-    mapping(bytes32 => address) private _warpDestinations; // KECCAK256(fromToken,fromChain,_bridgeAddressByChainId(toChain), toChain) => destinationToken
+    mapping(bytes32 => address) private _warpDestinations;  // KECCAK256(fromToken,fromChain,_bridgeAddressByChainId(toChain), toChain) => destinationToken
+
+    // TX caps
+    mapping(address => uint256) public txCap;  // Token => Cap per Transaction
+    mapping(bytes32 => mapping(address => uint256)) public depositTxCap; // KECCAK256(tx.sender, block.timestamp) => Token => Cap per Transaction
+    mapping(bytes32 => mapping(address => uint256)) public withdrawTxCap; // KECCAK256(tx.sender, block.timestamp) => Token => Cap per Transaction
+
+    // 24h caps
+    mapping(address => uint256) public dayCap;  // Token => Cap per Day
+    mapping(address => mapping(uint256 => uint256)) public depositCapDay; // Token => (EpochTime/1 Day) => Amount of Deposit
+    mapping(address => mapping(uint256 => uint256)) public withdrawCapDay; // Token => (EpochTime/1 Day) => Amount of Deposit
+
+    mapping(uint256 => bool) private capping;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     // --- Constructor ---
@@ -49,6 +61,14 @@ contract DavosBridge is IDavosBridge, OwnableUpgradeable, PausableUpgradeable, R
 
     // --- User ---
     function depositToken(address fromToken, uint256 toChain, address toAddress, uint256 amount) external override nonReentrant whenNotPaused {
+        
+        // A TX can have multiple internal calls
+        bytes32 originAtStamp = keccak256(abi.encodePacked(tx.origin, block.timestamp));
+        require(depositTxCap[originAtStamp][fromToken] + amount <= txCap[fromToken], "DavosBridge/deposit-tx-cap-exceeded");
+        depositTxCap[originAtStamp][fromToken] += amount;
+
+        require(depositCapDay[fromToken][getCurrentDayStamp()] + amount <= dayCap[fromToken], "DavosBridge/deposit-day-cap-exceeded");
+        depositCapDay[fromToken][getCurrentDayStamp()] += amount;
 
         if (warpDestination(fromToken, toChain) != address(0)) {
             _depositWarped(fromToken, toChain, toAddress, amount);
@@ -140,6 +160,15 @@ contract DavosBridge is IDavosBridge, OwnableUpgradeable, PausableUpgradeable, R
         require(decimals <= 18, "DavosBridge/decimals-overflow");
 
         uint256 scaledAmount = state.totalAmount / (10**(18 - decimals));
+
+        // A TX can have multiple internal calls
+        bytes32 originAtStamp = keccak256(abi.encodePacked(tx.origin, block.timestamp));
+        require(withdrawTxCap[originAtStamp][state.toToken] + scaledAmount <= txCap[state.toToken], "DavosBridge/withdraw-tx-cap-exceeded");
+        withdrawTxCap[originAtStamp][state.toToken] += scaledAmount;
+
+        require(withdrawCapDay[state.toToken][getCurrentDayStamp()] + scaledAmount <= dayCap[state.toToken], "DavosBridge/withdraw-day-cap-exceeded");
+        withdrawCapDay[state.toToken][getCurrentDayStamp()] += scaledAmount;
+
         IERC20Mintable(state.toToken).mint(state.toAddress, scaledAmount);
 
         emit WithdrawMinted(state.receiptHash, state.fromAddress, state.toAddress, state.fromToken, state.toToken, state.totalAmount);
@@ -201,10 +230,28 @@ contract DavosBridge is IDavosBridge, OwnableUpgradeable, PausableUpgradeable, R
         IERC20MetadataChangeable(token).changeName(name);
         IERC20MetadataChangeable(token).changeSymbol(symbol);
     }
+    function changeTxCap(address token, uint256 amount) external onlyOwner {
+
+        uint256 xAmount = txCap[token];
+        txCap[token] = amount;
+
+        emit TxCapChanged(token, xAmount, amount);
+    }
+    function changeDayCap(address token, uint256 amount) external onlyOwner {
+
+        uint256 xAmount = dayCap[token];
+        dayCap[token] = amount;
+
+        emit DayCapChanged(token, xAmount, amount);
+    }
 
     // --- Views ---
     function warpDestination(address fromToken, uint256 toChain) public view returns(address) {
 
         return _warpDestinations[keccak256(abi.encodePacked(fromToken, block.chainid, _bridgeAddressByChainId[toChain], toChain))];
+    }
+    function getCurrentDayStamp() public view returns(uint256) {
+
+        return (block.timestamp / 1 days) * 1 days;
     }
 }
