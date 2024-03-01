@@ -22,5 +22,8 @@
     "hardhat-gas-reporter": "^1.0.9",
     "hardhat-spdx-license-identifier": "^2.1.0",
     "web3": "^1.10.0"
+  },
+  "devDependencies": {
+    "solidity-coverage": "^0.8.10"
   }
 }
