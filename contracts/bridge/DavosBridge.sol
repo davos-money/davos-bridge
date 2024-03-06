@@ -27,17 +27,15 @@ contract DavosBridge is IDavosBridge, OwnableUpgradeable, PausableUpgradeable, R
     mapping(uint256 => address) private _bridgeAddressByChainId;
     mapping(bytes32 => address) private _warpDestinations;  // KECCAK256(fromToken,fromChain,_bridgeAddressByChainId(toChain), toChain) => destinationToken
 
-    // TX caps
-    mapping(address => uint256) public txCap;  // Token => Cap per Transaction
-    mapping(bytes32 => mapping(address => uint256)) public depositTxCap; // KECCAK256(tx.sender, block.timestamp) => Token => Cap per Transaction
-    mapping(bytes32 => mapping(address => uint256)) public withdrawTxCap; // KECCAK256(tx.sender, block.timestamp) => Token => Cap per Transaction
+    uint256 public shortCapDuration;  // [sec]
+    mapping(address => uint256) public shortCaps;  // Token => Cap per 'shortCapTime'
+    mapping(address => mapping(uint256 => uint256)) public shortCapsDeposit;   // Token => (EpochTime/shortCapDuration) => Current Deposits
+    mapping(address => mapping(uint256 => uint256)) public shortCapsWithdraw;  // Token => (EpochTime/shortCapDuration) => Current Withdraws
 
-    // 24h caps
-    mapping(address => uint256) public dayCap;  // Token => Cap per Day
-    mapping(address => mapping(uint256 => uint256)) public depositCapDay; // Token => (EpochTime/1 Day) => Amount of Deposit
-    mapping(address => mapping(uint256 => uint256)) public withdrawCapDay; // Token => (EpochTime/1 Day) => Amount of Deposit
-
-    mapping(uint256 => bool) private capping;
+    uint256 public longCapDuration;  // [sec]
+    mapping(address => uint256) public longCaps;  // Token => Cap per 'longCapTime'
+    mapping(address => mapping(uint256 => uint256)) public longCapsDeposit;   // Token => (EpochTime/longCapDuration) => Current Deposits
+    mapping(address => mapping(uint256 => uint256)) public longCapsWithdraw;  // Token => (EpochTime/longCapDuration) => Current Withdraws
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     // --- Constructor ---
@@ -57,22 +55,27 @@ contract DavosBridge is IDavosBridge, OwnableUpgradeable, PausableUpgradeable, R
             block.chainid,
             address(bytes20(keccak256(abi.encodePacked("DavosBridge", nativeTokenSymbol))))     
         );
+
+        shortCapDuration = 1 hours;
+        longCapDuration = 1 days;
     }
 
     // --- User ---
     function depositToken(address fromToken, uint256 toChain, address toAddress, uint256 amount) external override nonReentrant whenNotPaused {
         
-        // A TX can have multiple internal calls
-        bytes32 originAtStamp = keccak256(abi.encodePacked(tx.origin, block.timestamp));
-        require(depositTxCap[originAtStamp][fromToken] + amount <= txCap[fromToken], "DavosBridge/deposit-tx-cap-exceeded");
-        depositTxCap[originAtStamp][fromToken] += amount;
-
-        require(depositCapDay[fromToken][getCurrentDayStamp()] + amount <= dayCap[fromToken], "DavosBridge/deposit-day-cap-exceeded");
-        depositCapDay[fromToken][getCurrentDayStamp()] += amount;
+        _updateDepositCaps(fromToken, amount);
 
         if (warpDestination(fromToken, toChain) != address(0)) {
             _depositWarped(fromToken, toChain, toAddress, amount);
         } else revert("DavosBridge/warp-destination-unknown");
+    }
+    function _updateDepositCaps(address fromToken, uint256 amount) internal {
+
+        require(shortCapsDeposit[fromToken][getCurrentStamp(shortCapDuration)] + amount <= shortCaps[fromToken], "DavosBridge/short-caps-exceeded");
+        shortCapsDeposit[fromToken][getCurrentStamp(shortCapDuration)] += amount;
+
+        require(longCapsDeposit[fromToken][getCurrentStamp(longCapDuration)] + amount <= longCaps[fromToken], "DavosBridge/long-caps-exceeded");
+        longCapsDeposit[fromToken][getCurrentStamp(longCapDuration)] += amount;
     }
     /**
      * @dev Tokens on source and destination chains are linked with independent supplies.
@@ -161,17 +164,19 @@ contract DavosBridge is IDavosBridge, OwnableUpgradeable, PausableUpgradeable, R
 
         uint256 scaledAmount = state.totalAmount / (10**(18 - decimals));
 
-        // A TX can have multiple internal calls
-        bytes32 originAtStamp = keccak256(abi.encodePacked(tx.origin, block.timestamp));
-        require(withdrawTxCap[originAtStamp][state.toToken] + scaledAmount <= txCap[state.toToken], "DavosBridge/withdraw-tx-cap-exceeded");
-        withdrawTxCap[originAtStamp][state.toToken] += scaledAmount;
-
-        require(withdrawCapDay[state.toToken][getCurrentDayStamp()] + scaledAmount <= dayCap[state.toToken], "DavosBridge/withdraw-day-cap-exceeded");
-        withdrawCapDay[state.toToken][getCurrentDayStamp()] += scaledAmount;
+        _updateWithdrawCaps(state.toToken, scaledAmount);
 
         IERC20Mintable(state.toToken).mint(state.toAddress, scaledAmount);
 
         emit WithdrawMinted(state.receiptHash, state.fromAddress, state.toAddress, state.fromToken, state.toToken, state.totalAmount);
+    }
+    function _updateWithdrawCaps(address token, uint256 amount) internal {
+
+        require(shortCapsWithdraw[token][getCurrentStamp(shortCapDuration)] + amount <= shortCaps[token], "DavosBridge/short-caps-exceeded");
+        shortCapsWithdraw[token][getCurrentStamp(shortCapDuration)] += amount;
+
+        require(longCapsWithdraw[token][getCurrentStamp(longCapDuration)] + amount <= longCaps[token], "DavosBridge/long-caps-exceeded");
+        longCapsWithdraw[token][getCurrentStamp(longCapDuration)] += amount;
     }
 
     // --- Admin ---
@@ -230,19 +235,33 @@ contract DavosBridge is IDavosBridge, OwnableUpgradeable, PausableUpgradeable, R
         IERC20MetadataChangeable(token).changeName(name);
         IERC20MetadataChangeable(token).changeSymbol(symbol);
     }
-    function changeTxCap(address token, uint256 amount) external onlyOwner {
+    function changeShortCap(address token, uint256 amount) external onlyOwner {
 
-        uint256 xAmount = txCap[token];
-        txCap[token] = amount;
+        uint256 xAmount = shortCaps[token];
+        shortCaps[token] = amount;
 
-        emit TxCapChanged(token, xAmount, amount);
+        emit ShortCapChanged(token, xAmount, amount);
     }
-    function changeDayCap(address token, uint256 amount) external onlyOwner {
+    function changeShortCapDuration(uint256 duration) external onlyOwner {
 
-        uint256 xAmount = dayCap[token];
-        dayCap[token] = amount;
+        uint256 xDuration = shortCapDuration;
+        shortCapDuration = duration;
 
-        emit DayCapChanged(token, xAmount, amount);
+        emit ShortCapDurationChanged(xDuration, duration);
+    }
+    function changeLongCap(address token, uint256 amount) external onlyOwner {
+
+        uint256 xAmount = longCaps[token];
+        longCaps[token] = amount;
+
+        emit LongCapChanged(token, xAmount, amount);
+    }
+    function changeLongCapDuration(uint256 duration) external onlyOwner {
+
+        uint256 xDuration = longCapDuration;
+        longCapDuration = duration;
+
+        emit LongCapDurationChanged(xDuration, duration);
     }
 
     // --- Views ---
@@ -250,8 +269,8 @@ contract DavosBridge is IDavosBridge, OwnableUpgradeable, PausableUpgradeable, R
 
         return _warpDestinations[keccak256(abi.encodePacked(fromToken, block.chainid, _bridgeAddressByChainId[toChain], toChain))];
     }
-    function getCurrentDayStamp() public view returns(uint256) {
+    function getCurrentStamp(uint256 duration) public view returns(uint256) {
 
-        return (block.timestamp / 1 days) * 1 days;
+        return (block.timestamp / duration) * duration;
     }
 }
