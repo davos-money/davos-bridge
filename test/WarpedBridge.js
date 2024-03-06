@@ -24,7 +24,7 @@ const amount = ethers.utils.parseEther('10');
 let deployer, eoa1, eoa2, consensus, treasury;
 
 // Protocol Contracts
-let router, bridge1, bridge2, tokenFactory, bridgeCaller;
+let router, bridge1, bridge2, tokenFactory;
 
 // Participant Contracts
 let warptoken1, warptoken2;
@@ -47,8 +47,6 @@ async function init() {
     warptoken2 = await WarpToken.connect(deployer).deploy(); await warptoken2.deployed();
     bridge1 = await upgrades.deployProxy(DavosBridge, [consensus.address, CHAIN1_TOKEN_SYMBOL, CHAIN1_TOKEN_NAME], {initializer: "initialize"}); await bridge1.deployed();
     bridge2 = await upgrades.deployProxy(DavosBridge, [consensus.address, CHAIN2_TOKEN_SYMBOL, CHAIN2_TOKEN_NAME], {initializer: "initialize"}); await bridge2.deployed();
-    bridgeCaller = await ethers.deployContract("BridgeCaller", [bridge1.address, bridge2.address]); await bridgeCaller.deployed();
-
 
     // Contract Initialization
     await warptoken1.connect(deployer).initialize();
