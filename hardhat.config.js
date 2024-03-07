@@ -5,6 +5,7 @@ require('hardhat-contract-sizer');
 require("@nomiclabs/hardhat-etherscan");
 require("@nomiclabs/hardhat-waffle");
 require('@openzeppelin/hardhat-upgrades');
+require('solidity-coverage');
 
 module.exports = {
     solidity: {
@@ -26,6 +27,7 @@ module.exports = {
         {
             accounts: {
                 accountsBalance: "100000000000000000000000000",
+                mnemonic: "text oblige island web bus tennis educate choice sketch board journey fluid"
               },
         },
         ethereum: {

@@ -203,6 +203,19 @@ function encodeProof(chainId, status, txHash, blockNumber, blockHash, txIndex, r
   return [`0x${proofData.toString("hex")}`, `0x${eth.keccak256(proofData).toString("hex")}`];
 }
 
+function randBigInt (length) {
+  if (length > 0) {
+    let randomNum = "";
+    randomNum += Math.floor(Math.random() * 9) + 1; // generates a random digit 1-9
+    for (let i = 0; i < length - 1; i++) {
+      randomNum += Math.floor(Math.random() * 10); // generates a random digit 0-9
+    }
+    return BigInt(randomNum);
+  } else {
+    return 0n;
+  }
+}
+
 module.exports = {
   createSimpleTokenMetaData,
   createInternetBondMetaData,
@@ -214,4 +227,5 @@ module.exports = {
   encodeTransactionReceipt,
   encodeProof,
   treasuryByNetwork,
+  randBigInt
 };
