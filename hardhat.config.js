@@ -102,6 +102,30 @@ module.exports = {
             accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
             gasPrice: parseInt(process.env.GAS_PRICE_BSC) || 'auto'
         },
+        linea: {
+            url: process.env.LINEA_URL,
+            chainId: 59144,
+            accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
+            gasPrice: parseInt(process.env.GAS_PRICE_LIN) || 'auto'
+        },
+        lineaTestnet: {
+            url: process.env.LINEATESTNET_URL,
+            chainId: 59140,
+            accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
+            gasPrice: parseInt(process.env.GAS_PRICE_LIN) || 'auto'
+        },
+        avalanche: {
+            url: process.env.AVALANCHE_URL,
+            chainId: 43114,
+            accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
+            gasPrice: parseInt(process.env.GAS_PRICE_AVA) || 'auto'
+        },
+        avalancheTestnet: {
+            url: process.env.AVALANCHETESTNET_URL,
+            chainId: 43113,
+            accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
+            gasPrice: parseInt(process.env.GAS_PRICE_AVA) || 'auto'
+        },
         mantle: {
             url: process.env.MANTLE_URL,
             chainId: 5000,
