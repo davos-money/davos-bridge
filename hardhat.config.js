@@ -62,7 +62,7 @@ module.exports = {
         },
         arbitrumTestnet: {
             url: process.env.ARBITRUMGOERLI_URL,
-            chainId: 421613,
+            chainId: 421614,
             accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
             gasPrice: parseInt(process.env.GAS_PRICE_ARB) || 'auto'
         },
@@ -74,7 +74,7 @@ module.exports = {
         },
         optimisticGoerli: {
             url: process.env.OPTIMISMGOERLI_URL,
-            chainId: 420,
+            chainId: 11155420,
             accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
             gasPrice: parseInt(process.env.GAS_PRICE_OPT) || 'auto'
         },
@@ -110,7 +110,7 @@ module.exports = {
         },
         lineaTestnet: {
             url: process.env.LINEATESTNET_URL,
-            chainId: 59140,
+            chainId: 59141,
             accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
             gasPrice: parseInt(process.env.GAS_PRICE_LIN) || 'auto'
         },
@@ -134,7 +134,7 @@ module.exports = {
         },
         mantleTestnet: {
             url: process.env.MANTLETESTNET_URL,
-            chainId: 5001,
+            chainId: 5003,
             accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
             gasPrice: parseInt(process.env.GAS_PRICE_MNT) || 'auto'
         },
@@ -161,6 +161,18 @@ module.exports = {
             chainId: 84532,
             accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
             gasPrice: parseInt(process.env.GAS_PRICE_BAS) || 'auto'
+        },
+        xLayer: {
+            url: process.env.XLAYER_URL,
+            chainId: 196,
+            accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
+            gasPrice: parseInt(process.env.GAS_PRICE_XLA) || 'auto'
+        },
+        xLayerTestnet: {
+            url: process.env.XLAYERTESTNET_URL,
+            chainId: 195,
+            accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
+            gasPrice: parseInt(process.env.GAS_PRICE_XLA) || 'auto'
         }
     },
 
@@ -168,13 +180,13 @@ module.exports = {
         apiKey: process.env.SCAN_API_KEY,
         customChains: [
             {
-              network: "zkevmTestnet",
-              chainId: 1442,
-              urls: {
-                apiURL: "https://api-testnet-zkevm.polygonscan.com/api",
-                browserURL: "https://testnet-zkevm.polygonscan.com/"
+                network: "lineaTestnet",
+                chainId: 59141,
+                urls: {
+                  apiURL: "https://api-sepolia.lineascan.build/api",
+                  browserURL: "https://sepolia.lineascan.build/"
+                }
               }
-            }
           ]
     },
 

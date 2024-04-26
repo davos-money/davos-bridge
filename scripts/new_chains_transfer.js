@@ -30,6 +30,8 @@ async function main() {
         multisig = deployer;
     } else if (hre.network.name == "base") { 
         multisig = "0x400d5477e52c5037f6eF1BceBc063eDF68a7603D";
+    } else if (hre.network.name == "xLayer" || hre.network.name == "xLayerTestnet") { 
+        multisig = "0xf7fB593Bc23b96cf00949f811b4Bd0F1c9ae8a01";
     } else throw("ERR:> Network Unsupported !");
 
     console.log("===Transfering Ownership");

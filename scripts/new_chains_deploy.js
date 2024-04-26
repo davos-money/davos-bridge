@@ -18,7 +18,7 @@ async function main() {
         _symbol = "MNT";
         _name = "Mantle";
     } else if (hre.network.name == "mantleTestnet") {
-        chainid = 5001;
+        chainid = 5003;
         _consensus = "0x14330cfC54aA5a5637Af47330d3e3701eBe50273";
         _symbol = "MNT";
         _name = "Mantle";
@@ -42,6 +42,16 @@ async function main() {
         _consensus = "0x14330cfC54aA5a5637Af47330d3e3701eBe50273";
         _symbol = "ETH";
         _name = "Ethereum";
+    } else if (hre.network.name == "xLayer") {
+        chainid = 196;
+        _consensus = "0x4d5F4cAEe7f51670A4c3a9f6C93D4B42418E3d90";
+        _symbol = "OKB";
+        _name = "OKB";
+    } else if (hre.network.name == "xLayerTestnet") {
+        chainid = 195;
+        _consensus = "0x14330cfC54aA5a5637Af47330d3e3701eBe50273";
+        _symbol = "OKB";
+        _name = "OKB";
     } else throw("ERR:> Network Unsupported !");
     
     // Fetching

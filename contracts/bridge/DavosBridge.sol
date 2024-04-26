@@ -168,7 +168,7 @@ contract DavosBridge is IDavosBridge, OwnableUpgradeable, PausableUpgradeable, R
 
         IERC20Mintable(state.toToken).mint(state.toAddress, scaledAmount);
 
-        emit WithdrawMinted(state.receiptHash, state.fromAddress, state.toAddress, state.fromToken, state.toToken, state.totalAmount);
+        emit WithdrawMinted(state.receiptHash, state.fromAddress, state.toAddress, state.fromToken, state.toToken, scaledAmount);
     }
     function _updateWithdrawCaps(address token, uint256 amount) internal {
 
