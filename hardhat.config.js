@@ -36,9 +36,9 @@ module.exports = {
             accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
             gasPrice: parseInt(process.env.GAS_PRICE_ETH) || 'auto'
         },
-        goerli: {
+        ethereumTestnet: {
             url: process.env.GOERLI_URL,
-            chainId: 5,
+            chainId: 17000,
             accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
             gasPrice: parseInt(process.env.GAS_PRICE_ETH) || 'auto'
         },
@@ -173,6 +173,18 @@ module.exports = {
             chainId: 195,
             accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
             gasPrice: parseInt(process.env.GAS_PRICE_XLA) || 'auto'
+        },
+        blast: {
+            url: process.env.BLAST_URL,
+            chainId: 81457,
+            accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
+            gasPrice: parseInt(process.env.GAS_PRICE_BLA) || 'auto'
+        },
+        blastTestnet: {
+            url: process.env.BLASTTESTNET_URL,
+            chainId: 168587773,
+            accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
+            gasPrice: parseInt(process.env.GAS_PRICE_BLA) || 'auto'
         }
     },
 

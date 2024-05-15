@@ -32,6 +32,8 @@ async function main() {
         multisig = "0x400d5477e52c5037f6eF1BceBc063eDF68a7603D";
     } else if (hre.network.name == "xLayer" || hre.network.name == "xLayerTestnet") { 
         multisig = "0xf7fB593Bc23b96cf00949f811b4Bd0F1c9ae8a01";
+    } else if (hre.network.name == "blast" || hre.network.name == "blastTestnet") { 
+        multisig = "0x9DA9270DE0Fa48c2626EcB57154b3D72d45BC298";
     } else throw("ERR:> Network Unsupported !");
 
     console.log("===Transfering Ownership");

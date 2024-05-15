@@ -52,7 +52,17 @@ async function main() {
         _consensus = "0x14330cfC54aA5a5637Af47330d3e3701eBe50273";
         _symbol = "OKB";
         _name = "OKB";
-    } else throw("ERR:> Network Unsupported !");
+    } else if (hre.network.name == "blast") {
+        chainid = 81457;
+        _consensus = "0x4d5F4cAEe7f51670A4c3a9f6C93D4B42418E3d90";
+        _symbol = "ETH";
+        _name = "ETH";
+    } else if (hre.network.name == "blastTestnet") {
+        chainid = 168587773;
+        _consensus = "0x14330cfC54aA5a5637Af47330d3e3701eBe50273";
+        _symbol = "ETH";
+        _name = "ETH";
+    }else throw("ERR:> Network Unsupported !");
     
     // Fetching
     this.DavosBridge = await hre.ethers.getContractFactory("DavosBridge");
