@@ -17,7 +17,9 @@ async function main() {
 
     // Signer
     [deployer] = await ethers.getSigners();
-
+    let initialNonce = await ethers.provider.getTransactionCount(deployer.address);
+    let _nonce = initialNonce
+    
     this.DavosBridge = await hre.ethers.getContractFactory("DavosBridge");
     
     let multisig;
@@ -41,7 +43,7 @@ async function main() {
     } else throw("ERR:> Network Unsupported !");
 
     console.log("===Transfering Ownership");
-    await b.transferOwnership(multisig); console.log("Transfered");
+    await b.transferOwnership(multisig,{ nonce: _nonce}); _nonce += 1; console.log("Transfered");
 
     console.log("=== Try proxyAdmin transfer...");
     const proxyAdminAddress = parseAddress(await ethers.provider.getStorageAt(b.address, admin_slot));
