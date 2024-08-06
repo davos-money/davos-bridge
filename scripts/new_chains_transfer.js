@@ -57,7 +57,7 @@ async function main() {
     if (owner != ethers.constants.AddressZero && owner != multisig) {
         PROXY_ADMIN_ABI = ["function transferOwnership(address newOwner) public"];
         let proxyAdmin = await ethers.getContractAt(PROXY_ADMIN_ABI, proxyAdminAddress);
-        await proxyAdmin.transferOwnership(multisig);
+        await proxyAdmin.transferOwnership(multisig,{ nonce: _nonce}); _nonce += 1;
         console.log("proxyAdmin transferred");
     } else {
         console.log("Already owner of proxyAdmin")
