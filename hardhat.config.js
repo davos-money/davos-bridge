@@ -6,6 +6,7 @@ require("@nomiclabs/hardhat-etherscan");
 require("@nomiclabs/hardhat-waffle");
 require('@openzeppelin/hardhat-upgrades');
 require('solidity-coverage');
+require('@nomiclabs/hardhat-ethers')
 
 module.exports = {
     solidity: {
@@ -185,6 +186,30 @@ module.exports = {
             chainId: 168587773,
             accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
             gasPrice: parseInt(process.env.GAS_PRICE_BLA) || 'auto'
+        },
+        zkLink: {
+            url: process.env.ZKLINK_URL,
+            chainId: 810180,
+            accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
+            gasPrice: parseInt(process.env.GAS_PRICE_ZKL) || 'auto'
+        },
+        zkLinkTestnet: {
+            url: process.env.ZKLINKTESTNET_URL,
+            chainId: 810181,
+            accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
+            gasPrice: parseInt(process.env.GAS_PRICE_ZKL) || 'auto'
+        },
+        bitLayer: {
+            url: process.env.BITLAYER_URL,
+            chainId: 200901,
+            accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
+            gasPrice: parseInt(process.env.GAS_PRICE_BIT) || 'auto'
+        },
+        bitLayerTestnet: {
+            url: process.env.BITLAYERTESTNET_URL,
+            chainId: 200810,
+            accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
+            gasPrice: parseInt(process.env.GAS_PRICE_BIT) || 'auto'
         }
     },
 
@@ -192,11 +217,11 @@ module.exports = {
         apiKey: process.env.SCAN_API_KEY,
         customChains: [
             {
-                network: "lineaTestnet",
-                chainId: 59141,
+                network: "blast",
+                chainId: 81457,
                 urls: {
-                  apiURL: "https://api-sepolia.lineascan.build/api",
-                  browserURL: "https://sepolia.lineascan.build/"
+                  apiURL: "https://api.blastscan.io/api",
+                  browserURL: "https://blastscan.io/"
                 }
               }
           ]

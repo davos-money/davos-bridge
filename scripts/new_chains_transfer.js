@@ -34,6 +34,10 @@ async function main() {
         multisig = "0xf7fB593Bc23b96cf00949f811b4Bd0F1c9ae8a01";
     } else if (hre.network.name == "blast" || hre.network.name == "blastTestnet") { 
         multisig = "0x9DA9270DE0Fa48c2626EcB57154b3D72d45BC298";
+    } else if (hre.network.name == "blast" || hre.network.name == "zkLink") { 
+        multisig = "";
+    } else if (hre.network.name == "bitLayer" || hre.network.name == "bitLayerTestnet") { 
+        multisig = "0x772bBC002e6FF0905B9fB3B5E12Ff1d78d4aa215";
     } else throw("ERR:> Network Unsupported !");
 
     console.log("===Transfering Ownership");
