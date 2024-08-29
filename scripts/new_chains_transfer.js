@@ -40,6 +40,10 @@ async function main() {
         multisig = "";
     } else if (hre.network.name == "bitLayer" || hre.network.name == "bitLayerTestnet") { 
         multisig = "0x772bBC002e6FF0905B9fB3B5E12Ff1d78d4aa215";
+    } else if (hre.network.name == "bitLayer" || hre.network.name == "scroll") { 
+        multisig = "0xA6cd2ffC827DE676C1C9ad8343CE04562F6C4e5F";
+    } else if (hre.network.name == "bitLayer" || hre.network.name == "coreDao") { 
+        multisig = "0xa65A437a2689C3C64Afd42a10cF3ABB019a0C0A2";
     } else throw("ERR:> Network Unsupported !");
 
     console.log("===Transfering Ownership");

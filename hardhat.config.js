@@ -210,6 +210,36 @@ module.exports = {
             chainId: 200810,
             accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
             gasPrice: parseInt(process.env.GAS_PRICE_BIT) || 'auto'
+        },
+        scroll: {
+            url: process.env.SCROLL_URL,
+            chainId: 534352,
+            accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
+            gasPrice: parseInt(process.env.GAS_PRICE_SCR) || 'auto'
+        },
+        scrollTestnet: {
+            url: process.env.SCROLLTESTNET_URL,
+            chainId: 534351,
+            accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
+            gasPrice: parseInt(process.env.GAS_PRICE_SCR) || 'auto'
+        },
+        coreDao: {
+            url: process.env.COREDAO_URL,
+            chainId: 1116,
+            accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
+            gasPrice: parseInt(process.env.GAS_PRICE_COR) || 'auto'
+        },
+        coreDaoTestnet: {
+            url: process.env.COREDAOTESTNET_URL,
+            chainId: 1115,
+            accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
+            gasPrice: parseInt(process.env.GAS_PRICE_COR) || 'auto'
+        },
+        beraTestnet: {
+            url: process.env.BERATESTNET_URL,
+            chainId: 80084,
+            accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
+            gasPrice: parseInt(process.env.GAS_PRICE_BER) || 'auto'
         }
     },
 
